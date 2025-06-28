@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://geoloup.com/geoloup%20logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>P2P Video Call with Grid Motion Detection</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header Section -->
+      <header class="header">
+        <h1>P2P Video Call with Grid Motion Detection</h1>
+        <div class="connection-info">
+          <div class="peer-id-section">
+            <label for="my-peer-id">Your ID:</label>
+            <div class="peer-id-container">
+              <input type="text" id="my-peer-id" readonly />
+              <button id="copy-id-btn" class="btn btn-secondary">Copy</button>
+            </div>
+          </div>
+          <div class="connection-status">
+            <span id="status-indicator" class="status-dot"></span>
+            <span id="status-text">Initializing...</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Connection Controls -->
+        <section class="connection-controls">
+          <div class="connect-section">
+            <input
+              type="text"
+              id="remote-peer-id"
+              placeholder="Enter peer ID to call"
+            />
+            <button id="call-btn" class="btn btn-primary">Start Call</button>
+            <button id="end-call-btn" class="btn btn-danger" disabled>
+              End Call
+            </button>
+          </div>
+
+          <!-- Camera Controls -->
+          <div class="camera-controls">
+            <div class="camera-selection">
+              <label for="camera-select">Camera:</label>
+              <select id="camera-select" class="camera-dropdown">
+                <option value="">Loading cameras...</option>
+              </select>
+              <button
+                id="refresh-cameras-btn"
+                class="btn btn-secondary btn-icon"
+                title="Refresh cameras"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                  />
+                  <path d="M21 3v5h-5" />
+                  <path
+                    d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                  />
+                  <path d="M3 21v-5h5" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="video-transform-controls">
+              <button
+                id="flip-horizontal-btn"
+                class="btn btn-secondary btn-icon"
+                title="Flip horizontally"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3" />
+                  <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
+                  <path d="M12 20v2" />
+                  <path d="M12 14v2" />
+                  <path d="M12 8v2" />
+                  <path d="M12 2v2" />
+                </svg>
+              </button>
+
+              <button
+                id="flip-vertical-btn"
+                class="btn btn-secondary btn-icon"
+                title="Flip vertically"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3" />
+                  <path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
+                  <path d="M20 12h2" />
+                  <path d="M14 12h2" />
+                  <path d="M8 12h2" />
+                  <path d="M2 12h2" />
+                </svg>
+              </button>
+
+              <button
+                id="rotate-btn"
+                class="btn btn-secondary btn-icon"
+                title="Rotate 90°"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Motion Detection Controls -->
+          <div class="motion-controls">
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="motion-toggle" />
+                <span class="toggle-slider">
+                  <span class="toggle-text">Grid Motion Detection</span>
+                </span>
+              </label>
+            </div>
+            <div class="motion-status">
+              <div id="motion-indicator" class="motion-dot"></div>
+              <span id="motion-text">Grid motion detection off</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Video Section with Grid Overlay -->
+        <section class="video-section">
+          <div class="video-container">
+            <div class="video-wrapper local-video-wrapper">
+              <video id="local-video" autoplay muted playsinline></video>
+              <canvas id="grid-overlay" class="grid-overlay"></canvas>
+              <div class="video-overlay">
+                <span class="video-label">You (Grid Analysis)</span>
+              </div>
+              <canvas id="motion-canvas" style="display: none"></canvas>
+            </div>
+
+            <div class="video-wrapper remote-video-wrapper">
+              <video id="remote-video" autoplay playsinline></video>
+              <canvas id="remote-grid-overlay" class="grid-overlay"></canvas>
+              <div class="video-overlay">
+                <span class="video-label">Remote Peer</span>
+              </div>
+              <div class="no-video-placeholder">
+                <div class="placeholder-content">
+                  <div class="placeholder-icon">📹</div>
+                  <p>Waiting for remote peer...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Motion Detection Legend -->
+        <section class="motion-legend" style="display: none !important">
+          <h3>Motion Intensity Scale</h3>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div class="legend-color low"></div>
+              <span>Low (3-8%)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color medium"></div>
+              <span>Medium (8-15%)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color high"></div>
+              <span>High (15%+)</span>
+            </div>
+          </div>
+          <div class="grid-info">
+            <p><strong>Grid:</strong> 6×6 cells (A1-F6)</p>
+            <p>
+              <strong>Analysis:</strong> Real-time per-cell motion detection
+            </p>
+          </div>
+        </section>
+
+        <!-- Motion Log Section -->
+        <section class="motion-log-section" style="display: none !important">
+          <div class="log-header">
+            <h3>Motion Event Log</h3>
+            <div class="log-controls">
+              <button id="clear-log-btn" class="btn btn-secondary">
+                Clear Log
+              </button>
+              <button id="download-log-btn" class="btn btn-secondary">
+                Download JSON
+              </button>
+            </div>
+          </div>
+          <div id="motion-log" class="motion-log"></div>
+        </section>
+
+        <!-- Error Messages -->
+        <div id="error-container" class="error-container"></div>
+      </main>
+    </div>
+
+    <!-- PeerJS Script -->
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
