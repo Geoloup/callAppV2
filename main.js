@@ -456,7 +456,7 @@ class VideoCallApp {
    * Generate a unique peer ID
    */
   generatePeerId() {
-    return 'peer-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+    return 'car-' + Math.random().toString(36).substr(2, 4);
   }
 
   /**
